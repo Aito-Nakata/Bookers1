@@ -1,0 +1,134 @@
+<div class="todo-app">
+  <header class="app-header">
+    <h1 class="app-title">
+      <span class="icon">✓</span>
+      Todo List
+    </h1>
+    <p class="app-subtitle">Stay organized and productive</p>
+  </header>
+
+  <!-- Add New Todo Form -->
+  <div class="todo-form-container">
+    <%= form_with model: @todo, local: true, class: "todo-form", data: { turbo: false } do |form| %>
+      <div class="form-group">
+        <%= form.text_field :title, placeholder: "What needs to be done?", class: "form-input form-input-title", required: true %>
+        <%= form.text_area :description, placeholder: "Add a description (optional)", class: "form-input form-input-description", rows: 3 %>
+      </div>
+      
+      <% if @todo.errors.any? %>
+        <div class="error-messages">
+          <% @todo.errors.full_messages.each do |message| %>
+            <p class="error-message"><%= message %></p>
+          <% end %>
+        </div>
+      <% end %>
+      
+      <div class="form-actions">
+        <%= form.submit "Add Todo", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Statistics -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-number"><%= @todos.count %></div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number"><%= @pending_todos.count %></div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number"><%= @completed_todos.count %></div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+
+  <!-- Pending Todos -->
+  <% if @pending_todos.any? %>
+    <section class="todos-section">
+      <h2 class="section-title">
+        <span class="icon">⏳</span>
+        Pending Tasks
+      </h2>
+      <div class="todos-list">
+        <% @pending_todos.each do |todo| %>
+          <div class="todo-item pending" data-todo-id="<%= todo.id %>">
+            <div class="todo-content">
+              <h3 class="todo-title"><%= todo.title %></h3>
+              <% if todo.description.present? %>
+                <p class="todo-description"><%= todo.description %></p>
+              <% end %>
+              <div class="todo-meta">
+                <span class="todo-date">Created <%= time_ago_in_words(todo.created_at) %> ago</span>
+                <span class="todo-status pending">Pending</span>
+              </div>
+            </div>
+            <div class="todo-actions">
+              <%= link_to toggle_todo_path(todo), method: :patch, class: "btn btn-success btn-sm", title: "Mark as completed" do %>
+                <span class="icon">✓</span>
+              <% end %>
+              <%= link_to edit_todo_path(todo), class: "btn btn-secondary btn-sm", title: "Edit" do %>
+                <span class="icon">✏️</span>
+              <% end %>
+              <%= link_to todo_path(todo), method: :delete, 
+                          confirm: "Are you sure you want to delete this todo?", 
+                          class: "btn btn-danger btn-sm", title: "Delete" do %>
+                <span class="icon">🗑️</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Completed Todos -->
+  <% if @completed_todos.any? %>
+    <section class="todos-section">
+      <h2 class="section-title">
+        <span class="icon">✅</span>
+        Completed Tasks
+      </h2>
+      <div class="todos-list">
+        <% @completed_todos.each do |todo| %>
+          <div class="todo-item completed" data-todo-id="<%= todo.id %>">
+            <div class="todo-content">
+              <h3 class="todo-title"><%= todo.title %></h3>
+              <% if todo.description.present? %>
+                <p class="todo-description"><%= todo.description %></p>
+              <% end %>
+              <div class="todo-meta">
+                <span class="todo-date">Completed <%= time_ago_in_words(todo.updated_at) %> ago</span>
+                <span class="todo-status completed">Completed</span>
+              </div>
+            </div>
+            <div class="todo-actions">
+              <%= link_to toggle_todo_path(todo), method: :patch, class: "btn btn-warning btn-sm", title: "Mark as pending" do %>
+                <span class="icon">↩️</span>
+              <% end %>
+              <%= link_to edit_todo_path(todo), class: "btn btn-secondary btn-sm", title: "Edit" do %>
+                <span class="icon">✏️</span>
+              <% end %>
+              <%= link_to todo_path(todo), method: :delete, 
+                          confirm: "Are you sure you want to delete this todo?", 
+                          class: "btn btn-danger btn-sm", title: "Delete" do %>
+                <span class="icon">🗑️</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Empty State -->
+  <% if @todos.empty? %>
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No todos yet!</h3>
+      <p>Add your first todo above to get started.</p>
+    </div>
+  <% end %>
+</div>
